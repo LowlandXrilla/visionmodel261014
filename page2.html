@@ -1,355 +1,202 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>두근두근 사다리타기 게임 | K-Ladder Pro</title>
+    <title>사다리타기 게임 | ENG-CALC PRO Hub</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Pretendard', sans-serif;
-            background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 60%, #090d16 100%);
-            color: #f8fafc;
-            min-height: 100vh;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow-x: hidden;
         }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        /* Game Buttons & Interactive Cards */
-        .game-btn {
-            transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-            user-select: none;
-        }
-        .game-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-        .game-btn:active:not(:disabled) {
-            transform: translateY(1px) scale(0.97);
-        }
-
-        .player-node {
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .player-node:hover {
-            transform: translateY(-4px) scale(1.06);
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 12px rgba(99, 102, 241, 0.4); }
-            50% { box-shadow: 0 0 24px rgba(236, 72, 153, 0.75); }
-        }
-        .winner-card {
-            animation: pulse-glow 2s infinite;
-        }
-
-        @keyframes float-slow {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-4px); }
-        }
-        .floating-avatar {
-            animation: float-slow 2.6s ease-in-out infinite;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        .btn-action { transition: all 0.15s ease; user-select: none; }
+        .btn-action:active { transform: scale(0.96); }
     </style>
 </head>
-<body class="flex flex-col min-h-screen selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950">
 
-    <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-900/80 border-b border-slate-800/80 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-            <!-- Brand Logo -->
+    <!-- Top Header (ENG-CALC PRO와 동일한 네비게이션 구조) -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 px-4 py-2.5">
+        <div class="max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand Title -->
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
                     <i class="fa-solid fa-stairs text-white text-lg"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-white via-indigo-200 to-pink-200 bg-clip-text text-transparent">
-                            두근두근 사다리타기
-                        </h1>
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PARTY EDITION</span>
+                        <h1 class="font-bold text-base sm:text-lg tracking-tight text-white">LADDER GAME <span class="text-amber-400 font-mono text-xs px-1.5 py-0.5 bg-amber-950 rounded border border-amber-800">PRO</span></h1>
                     </div>
-                    <p class="text-xs text-slate-400 hidden sm:block">공정한 1:1 매칭 보장 · 블라인드 모드 · 결과 원클릭 공유</p>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">커피 내기 · 점심 메뉴 · 당번 정하기 인터랙티브 사다리타기</p>
                 </div>
             </div>
 
-            <!-- Quick Global Toggles -->
-            <div class="flex items-center flex-wrap gap-2">
-                <!-- Blind Mode Toggle -->
-                <button id="blind-toggle-btn" onclick="toggleBlindMode()" class="game-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border flex items-center gap-2 bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
-                    <i id="blind-icon" class="fa-solid fa-eye text-indigo-400"></i>
-                    <span id="blind-text">블라인드 OFF</span>
+            <!-- Navigation Tabs (메인 계산기 복귀 버튼 포함) -->
+            <nav class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
+                <!-- 메인 공학용 계산기(index.html) 이동 탭 -->
+                <a href="https://visionmodel261014-theta.vercel.app/" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-cyan-400 hover:bg-cyan-500/15 border border-transparent hover:border-cyan-500/30 shrink-0">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>← 공학용 계산기 (메인)</span>
+                </a>
+
+                <!-- Divider -->
+                <div class="h-4 w-[1px] bg-slate-800 mx-1 shrink-0"></div>
+
+                <!-- 현재 페이지 (사다리타기 게임) 활성 탭 -->
+                <a href="https://visionmodel261014-theta.vercel.app/page2.html" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow shrink-0">
+                    <i class="fa-solid fa-stairs"></i>
+                    <span>사다리타기 게임</span>
+                </a>
+            </nav>
+
+            <!-- Sound & Blind Mode Controls -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleBlindMode()" id="blind-btn" class="px-3 py-1.5 rounded-lg font-mono text-xs font-bold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">
+                    <i class="fa-solid fa-eye-slash mr-1"></i><span id="blind-text">블라인드 OFF</span>
                 </button>
-
-                <!-- Speed Selector -->
-                <div class="flex items-center bg-slate-950/90 p-1 rounded-xl border border-slate-800">
-                    <button onclick="setSpeed('normal')" id="speed-normal" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white shadow">일반</button>
-                    <button onclick="setSpeed('fast')" id="speed-fast" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">빠르게</button>
-                    <button onclick="setSpeed('instant')" id="speed-instant" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">즉시</button>
-                </div>
-
-                <!-- Sound Toggle -->
-                <button id="sound-toggle-btn" onclick="toggleSound()" class="game-btn w-9 h-9 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-center text-amber-400 hover:bg-slate-700" title="효과음 켜기/끄기">
-                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                <button onclick="toggleSound()" id="sound-btn" class="px-3 py-1.5 rounded-lg font-mono text-xs font-bold border transition-all bg-amber-500/10 text-amber-400 border-amber-500/30">
+                    <i class="fa-solid fa-volume-high" id="sound-icon"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col gap-5">
-
-        <!-- Control & Preset Bar -->
-        <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                
-                <!-- Player Count Controls (4 cols) -->
-                <div class="lg:col-span-4 flex items-center justify-between sm:justify-start gap-4 bg-slate-950/70 px-4 py-3 rounded-2xl border border-slate-800/80">
-                    <div>
-                        <span class="text-xs text-slate-400 block">참가 인원 (2~12명)</span>
-                        <div class="text-lg font-extrabold text-white flex items-baseline gap-1">
-                            <span id="player-count-label" class="text-2xl text-indigo-400">5</span>명
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="changePlayerCount(-1)" class="game-btn w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-base flex items-center justify-center">
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
-                        <input id="player-slider" type="range" min="2" max="12" value="5" oninput="setPlayerCount(this.value)" class="w-24 sm:w-28 accent-indigo-500 cursor-pointer">
-                        <button onclick="changePlayerCount(1)" class="game-btn w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-base flex items-center justify-center">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Quick Presets (5 cols) -->
-                <div class="lg:col-span-5 flex flex-wrap items-center gap-1.5">
-                    <span class="text-xs font-bold text-slate-400 mr-1"><i class="fa-solid fa-wand-magic-sparkles text-pink-400 mr-1"></i>테마 자동채우기:</span>
-                    <button onclick="applyPreset('coffee')" class="game-btn px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold">
-                        ☕ 커피 내기 (1명 당첨)
-                    </button>
-                    <button onclick="applyPreset('lunch')" class="game-btn px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
-                        🍔 점심 메뉴
-                    </button>
-                    <button onclick="applyPreset('cleaning')" class="game-btn px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold">
-                        🧹 청소/당번
-                    </button>
-                    <button onclick="applyPreset('order')" class="game-btn px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 text-xs font-bold">
-                        🔢 발표 순서 (1~N등)
-                    </button>
-                </div>
-
-                <!-- Shuffle & Regenerate Buttons (3 cols) -->
-                <div class="lg:col-span-3 flex items-center justify-end gap-2">
-                    <button onclick="shuffleInputs()" class="game-btn flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center justify-center gap-1.5" title="참가자와 벌칙 순서를 무작위로 섞습니다">
-                        <i class="fa-solid fa-shuffle text-pink-400"></i> 순서 섞기
-                    </button>
-                    <button onclick="regenerateLadder()" class="game-btn flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 text-xs font-bold flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-rotate"></i> 사다리 다시 그리기
-                    </button>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- Main Ladder Stage Card -->
-        <section class="bg-slate-900/95 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col gap-3 relative overflow-hidden">
+    <!-- Main Content -->
+    <main class="flex-1 max-w-[1400px] w-full mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left/Center Ladder Game Area (9 cols) -->
+        <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4">
             
-            <!-- Top Action Bar inside Stage -->
-            <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800/80">
-                <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>캐릭터 아이콘을 누르면 개별 출발하며, 이름을 클릭해 직접 수정할 수 있습니다.</span>
+            <!-- Control Bar: Player Count & Presets -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+                <!-- Player Count Controls -->
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-semibold text-slate-300"><i class="fa-solid fa-users text-amber-400 mr-1.5"></i>참가 인원</span>
+                    <div class="flex items-center bg-slate-950 rounded-xl border border-slate-800 p-1">
+                        <button onclick="changePlayerCount(-1)" class="btn-action w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold">-</button>
+                        <span id="player-count-display" class="font-mono font-bold text-base text-amber-400 px-4">4명</span>
+                        <button onclick="changePlayerCount(1)" class="btn-action w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold">+</button>
+                    </div>
                 </div>
+
+                <!-- Theme Presets -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button onclick="applyPreset('coffee')" class="btn-action px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700">☕ 커피 내기</button>
+                    <button onclick="applyPreset('lunch')" class="btn-action px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700">🍔 점심 메뉴</button>
+                    <button onclick="applyPreset('order')" class="btn-action px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700">🔢 발표 순서</button>
+                    <button onclick="shuffleResults()" class="btn-action px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-xs font-semibold text-amber-300 border border-amber-500/30">
+                        <i class="fa-solid fa-shuffle mr-1"></i>결과 섞기
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
-                    <button onclick="startAllPlayers()" class="game-btn px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-500/25 flex items-center gap-2">
-                        <i class="fa-solid fa-play"></i> 전체 출발
+                    <button onclick="generateNewLadder()" class="btn-action px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white border border-slate-700">
+                        <i class="fa-solid fa-rotate mr-1"></i>사다리 재생성
                     </button>
-                    <button onclick="revealAllInstant()" class="game-btn px-3.5 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow flex items-center gap-1.5">
-                        <i class="fa-solid fa-bolt"></i> 전체 결과 바로보기
-                    </button>
-                    <button onclick="resetTraces()" class="game-btn px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold text-xs sm:text-sm" title="진행 중인 경로 초기화">
-                        <i class="fa-solid fa-rotate-left"></i>
+                    <button onclick="startAllPlayers()" class="btn-action px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20">
+                        <i class="fa-solid fa-play mr-1"></i>전체 출발
                     </button>
                 </div>
             </div>
 
-            <!-- Scrollable Horizontal Container for Mobile when 8+ players -->
-            <div class="w-full overflow-x-auto pb-2">
-                <div id="ladder-board-wrapper" class="min-w-[560px] w-full flex flex-col select-none">
-                    
-                    <!-- Top Row: Player Avatars & Name Inputs -->
-                    <div id="players-top-row" class="grid gap-2 mb-2">
-                        <!-- Dynamically populated -->
-                    </div>
+            <!-- Ladder Board Container -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 overflow-x-auto">
+                <div class="min-w-[540px] flex flex-col gap-2">
+                    <!-- Top Player Inputs & Start Buttons -->
+                    <div id="top-players-row" class="grid gap-2"></div>
 
-                    <!-- Center HTML5 Canvas for Ladder & Animated Avatars -->
-                    <div class="relative w-full h-[360px] sm:h-[420px] bg-slate-950/90 rounded-2xl border border-slate-800/90 overflow-hidden shadow-inner">
-                        <canvas id="ladder-canvas" class="w-full h-full block cursor-pointer"></canvas>
-                        
-                        <!-- Blind Mode Center Overlay Badge -->
-                        <div id="blind-overlay-badge" class="hidden pointer-events-none absolute inset-0 flex items-center justify-center">
-                            <div class="bg-slate-900/95 border border-indigo-500/50 px-6 py-4 rounded-2xl shadow-2xl text-center backdrop-blur-md">
-                                <div class="text-2xl mb-1">🙈 <span class="font-extrabold text-indigo-300">블라인드 모드 활성화됨</span></div>
-                                <p class="text-xs text-slate-400">참가자가 출발하면 숨겨진 가로줄이 드러납니다!</p>
-                            </div>
+                    <!-- Ladder Canvas Wrapper -->
+                    <div class="relative h-[360px] bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden my-1">
+                        <canvas id="ladder-canvas" class="w-full h-full block"></canvas>
+                        <!-- Blind Mode Overlay -->
+                        <div id="blind-overlay" class="hidden absolute inset-x-4 inset-y-8 bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-xl flex flex-col items-center justify-center z-10 pointer-events-none">
+                            <i class="fa-solid fa-user-secret text-3xl text-amber-400 mb-2"></i>
+                            <span class="font-bold text-sm text-white">블라인드 모드 활성화 중</span>
+                            <span class="text-xs text-slate-400 mt-1">캐릭터를 클릭해 출발하면 경로가 공개됩니다!</span>
                         </div>
                     </div>
 
-                    <!-- Bottom Row: Result / Penalty Inputs -->
-                    <div id="results-bottom-row" class="grid gap-2 mt-2">
-                        <!-- Dynamically populated -->
-                    </div>
-
+                    <!-- Bottom Prize/Penalty Inputs -->
+                    <div id="bottom-results-row" class="grid gap-2"></div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Results Summary Panel -->
-        <section id="results-summary-section" class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl transition-all">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                        <i class="fa-solid fa-trophy"></i>
+        <!-- Right Sidebar: Match Results & Share (3 cols) -->
+        <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex-1 flex flex-col justify-between min-h-[420px]">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-trophy text-amber-400"></i> 사다리 매칭 결과표
+                        </h2>
+                        <span class="text-[11px] font-mono text-slate-400" id="completed-count">0 / 4 완료</span>
                     </div>
-                    <div>
-                        <h2 class="font-bold text-base sm:text-lg text-white">사다리 매칭 결과 요약</h2>
-                        <p class="text-xs text-slate-400" id="summary-progress-text">아직 공개된 결과가 없습니다. 참가자를 클릭해 출발시켜 보세요!</p>
-                    </div>
+                    <div id="result-summary-list" class="space-y-2"></div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="copyResultsToClipboard()" class="game-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-indigo-600/25">
-                        <i class="fa-regular fa-copy"></i> 결과 텍스트 복사 (카톡/슬랙 공유)
+
+                <div class="pt-4 border-t border-slate-800 mt-4 flex flex-col gap-2">
+                    <button onclick="revealAllInstant()" class="btn-action w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700">
+                        <i class="fa-solid fa-bolt text-amber-400 mr-1"></i>애니메이션 없이 즉시 전체 결과 보기
+                    </button>
+                    <button onclick="copyResultText()" class="btn-action w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow">
+                        <i class="fa-regular fa-copy mr-1"></i>결과 텍스트 복사 (카톡/슬랙 공유)
                     </button>
                 </div>
             </div>
-
-            <div id="summary-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                <!-- Dynamically populated summary cards -->
-            </div>
-        </section>
+        </aside>
 
     </main>
 
-    <!-- Non-intrusive Toast Notification -->
-    <div id="toast-box" class="fixed bottom-6 right-6 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-800/95 border border-indigo-500/60 text-white text-xs sm:text-sm font-semibold shadow-2xl backdrop-blur-md">
-        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
-        <span id="toast-msg">알림 메시지</span>
+    <!-- Toast Notification -->
+    <div id="toast-box" class="fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-xl bg-slate-800 border border-amber-500/50 text-white text-xs font-mono shadow-2xl items-center gap-2">
+        <i class="fa-solid fa-circle-check text-amber-400"></i>
+        <span id="toast-msg">알림</span>
     </div>
 
     <script>
-        // Vibrant colors and cute emoji avatars for up to 12 players
-        const PLAYER_PALETTE = [
-            { color: '#f43f5e', glow: 'rgba(244, 63, 94, 0.5)', emoji: '🦊', name: '참가자 1' },
-            { color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.5)', emoji: '🐼', name: '참가자 2' },
-            { color: '#10b981', glow: 'rgba(16, 185, 129, 0.5)', emoji: '🐸', name: '참가자 3' },
-            { color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.5)', emoji: '🦁', name: '참가자 4' },
-            { color: '#a855f7', glow: 'rgba(168, 85, 247, 0.5)', emoji: '🐰', name: '참가자 5' },
-            { color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.5)', emoji: '🐧', name: '참가자 6' },
-            { color: '#ec4899', glow: 'rgba(236, 72, 153, 0.5)', emoji: '🦄', name: '참가자 7' },
-            { color: '#84cc16', glow: 'rgba(132, 204, 22, 0.5)', emoji: '🦖', name: '참가자 8' },
-            { color: '#f97316', glow: 'rgba(249, 115, 22, 0.5)', emoji: '🐯', name: '참가자 9' },
-            { color: '#6366f1', glow: 'rgba(99, 102, 241, 0.5)', emoji: '🐨', name: '참가자 10' },
-            { color: '#14b8a6', glow: 'rgba(20, 184, 166, 0.5)', emoji: '🐙', name: '참가자 11' },
-            { color: '#eab308', glow: 'rgba(234, 179, 8, 0.5)', emoji: '🐥', name: '참가자 12' }
-        ];
+        const COLORS = ['#22d3ee', '#f59e0b', '#10b981', '#f43f5e', '#a855f7', '#3b82f6', '#ec4899', '#84cc16', '#eab308', '#14b8a6'];
+        const AVATARS = ['🐶', '🐱', '🦊', '🐼', '🐯', '🦁', '🐸', '🐵', '🐧', '🦄'];
 
-        // Global Application State
         const state = {
-            numPlayers: 5,
-            players: ['김민준', '이서연', '박지훈', '최수아', '정우진', '강하윤', '조도윤', '윤서아', '장시우', '임지아', '한현우', '오하은'],
-            results: ['꽝', '꽝', '☕ 커피 쏘기!', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝'],
-            rungs: [],          // Array of { col, yNorm } where col in [0..numPlayers-2], yNorm in (0.12..0.88)
-            paths: [],          // Precomputed path waypoints for each player
-            finalMapping: [],   // finalMapping[playerIdx] = resultIdx
-            playerStatus: [],   // 'idle' | 'running' | 'done'
-            progress: [],       // 0.0 to 1.0 along total path length
-            lastSoundStep: [],  // For triggering tick sound on corners
-            selectedPlayer: null,
+            count: 4,
+            players: ['철수', '영희', '민수', '지수'],
+            results: ['통과', '☕ 커피 쏘기!', '통과', '통과'],
+            bridges: [],       // Array of { col, yRatio }
+            completed: {},     // playerIdx -> { destCol, pathPoints }
+            activeAnim: null,
             blindMode: false,
-            speedMode: 'normal', // 'normal' | 'fast' | 'instant'
-            soundEnabled: true,
-            animFrameId: null
+            soundOn: true
         };
 
-        // Web Audio API Synthesizer for Cute Retro Game Sounds (No external audio files needed)
         let audioCtx = null;
-        function initAudio() {
-            if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                if (AudioContextClass) audioCtx = new AudioContextClass();
-            }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        function playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.08) {
-            if (!state.soundEnabled) return;
+        function playTone(freq = 520, duration = 0.06) {
+            if (!state.soundOn) return;
             try {
-                initAudio();
-                if (!audioCtx) return;
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.frequency.value = freq;
+                gain.gain.value = 0.06;
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + duration);
-            } catch (e) {
-                // Ignore audio context restrictions
-            }
+            } catch (e) {}
         }
 
-        function playTurnSound(playerIdx) {
-            const baseFreq = 320 + (playerIdx % 6) * 55;
-            playTone(baseFreq, 'triangle', 0.06, 0.06);
-        }
-
-        function playFinishSound(isHighlight) {
-            if (!state.soundEnabled) return;
-            if (isHighlight) {
-                // Exciting fanfare chord
-                [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
-                    setTimeout(() => playTone(f, 'triangle', 0.18, 0.11), idx * 65);
-                });
-            } else {
-                playTone(587.33, 'sine', 0.12, 0.07);
-                setTimeout(() => playTone(880, 'sine', 0.15, 0.07), 70);
-            }
-        }
-
-        // Toast Helper
         function showToast(msg) {
             const box = document.getElementById('toast-box');
             document.getElementById('toast-msg').textContent = msg;
@@ -362,679 +209,394 @@
             }, 2500);
         }
 
-        function generateRungs() {
-            const n = state.numPlayers;
-            const totalSlots = 16; // Discrete horizontal levels to guarantee zero collisions
-            const yStart = 0.10;
-            const yEnd = 0.90;
-            const rungs = [];
-
-            // Track whethereach column gap (0 .. n-2) has at least one rung
-            const colCounts = new Array(n - 1).fill(0);
-
-            for (let s = 0; s < totalSlots; s++) {
-                const yNorm = yStart + (s / (totalSlots - 1)) * (yEnd - yStart);
-                let c = 0;
-                while (c < n - 1) {
-                    // Decide whether to place a rung between column c and c+1
-                    const prob = 0.42;
-                    if (Math.random() < prob) {
-                        // Add slight vertical jitter within safe slot bounds
-                        const jitter = (Math.random() - 0.5) * 0.018;
-                        rungs.push({ col: c, yNorm: yNorm + jitter });
-                        colCounts[c]++;
-                        c += 2; // Skip adjacent column at the same slot height so two rungs never touch!
-                    } else {
-                        c += 1;
-                    }
-                }
-            }
-
-            // Ensure every adjacent pair of columns has at least 2 rungs for fun unpredictability
-            for (let c = 0; c < n - 1; c++) {
-                while (colCounts[c] < 2) {
-                    const randomSlot = Math.floor(Math.random() * totalSlots);
-                    const candidateY = yStart + (randomSlot / (totalSlots - 1)) * (yEnd - yStart);
-                    // Check if any existing rung is too close vertically in col-1, col, or col+1
-                    const conflict = rungs.some(r => Math.abs(r.col - c) <= 1 && Math.abs(r.yNorm - candidateY) < 0.045);
-                    if (!conflict) {
-                        rungs.push({ col: c, yNorm: candidateY });
-                        colCounts[c]++;
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            // Sort rungs top to bottom
-            rungs.sort((a, b) => a.yNorm - b.yNorm);
-            state.rungs = rungs;
-            computeAllPaths();
-        }
-
-        // Compute normalized waypoints [{col, yNorm}, ...] for every starting player
-        function computeAllPaths() {
-            const n = state.numPlayers;
-            state.paths = [];
-            state.finalMapping = new Array(n).fill(0);
-
-            for (let startCol = 0; startCol < n; startCol++) {
-                let currCol = startCol;
-                let currY = 0.0;
-                const waypoints = [{ col: currCol, yNorm: 0.0 }];
-
-                for (let i = 0; i < state.rungs.length; i++) {
-                    const r = state.rungs[i];
-                    if (r.yNorm > currY) {
-                        if (r.col === currCol) {
-                            // Move down to rung, then right to currCol + 1
-                            waypoints.push({ col: currCol, yNorm: r.yNorm });
-                            currCol = currCol + 1;
-                            waypoints.push({ col: currCol, yNorm: r.yNorm });
-                            currY = r.yNorm;
-                        } else if (r.col === currCol - 1) {
-                            // Move down to rung, then left to currCol - 1
-                            waypoints.push({ col: currCol, yNorm: r.yNorm });
-                            currCol = currCol - 1;
-                            waypoints.push({ col: currCol, yNorm: r.yNorm });
-                            currY = r.yNorm;
-                        }
-                    }
-                }
-
-                waypoints.push({ col: currCol, yNorm: 1.0 });
-                state.paths.push(waypoints);
-                state.finalMapping[startCol] = currCol;
-            }
-        }
-
-        function renderDOMInputs() {
-            const n = state.numPlayers;
-            const topRow = document.getElementById('players-top-row');
-            const bottomRow = document.getElementById('results-bottom-row');
-            const wrapper = document.getElementById('ladder-board-wrapper');
-
-            // Adjust minimum width so 10~12 players remain comfortable on mobile
-            wrapper.style.minWidth = `${Math.max(540, n * 88)}px`;
-
-            topRow.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
-            bottomRow.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
-
-            topRow.innerHTML = '';
-            bottomRow.innerHTML = '';
-
-            for (let i = 0; i < n; i++) {
-                const pInfo = PLAYER_PALETTE[i];
-                const isDone = state.playerStatus[i] === 'done';
-                const isSelected = state.selectedPlayer === i;
-
-                // Top Player Card
-                const topCell = document.createElement('div');
-                topCell.className = 'flex flex-col items-center gap-1.5 px-1';
-                topCell.innerHTML = `
-                    <button onclick="startSinglePlayer(${i})" onmouseenter="hoverPlayer(${i})"
-                        class="player-node w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center shadow-lg border-2 relative cursor-pointer ${isSelected ? 'ring-4 ring-white/40 scale-105' : ''}"
-                        style="background: linear-gradient(135deg, ${pInfo.color}33, ${pInfo.color}66); border-color: ${pInfo.color};"
-                        title="${state.players[i]} 출발하기!">
-                        <span class="text-xl sm:text-2xl floating-avatar">${pInfo.emoji}</span>
-                        <span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center text-slate-950 shadow"
-                              style="background-color: ${pInfo.color}">
-                            ${isDone ? '✓' : 'GO'}
-                        </span>
-                    </button>
-                    <input type="text" value="${state.players[i]}" oninput="updatePlayerName(${i}, this.value)"
-                        class="w-full bg-slate-950/90 hover:bg-slate-900 focus:bg-slate-900 text-center font-bold text-xs sm:text-sm text-white px-1.5 py-1.5 rounded-xl border border-slate-700/80 focus:border-indigo-400 focus:outline-none transition-all"
-                        placeholder="참가자 ${i + 1}">
-                `;
-                topRow.appendChild(topCell);
-
-                // Check if any completed player landed on this bottom column `i`
-                const landedPlayerIdx = state.finalMapping.findIndex((targetCol, pIdx) => targetCol === i && state.playerStatus[pIdx] === 'done');
-                const landedPalette = landedPlayerIdx !== -1 ? PLAYER_PALETTE[landedPlayerIdx] : null;
-                const isHighlightResult = !state.results[i].includes('꽝') && state.results[i].trim() !== '';
-
-                // Bottom Result Card
-                const bottomCell = document.createElement('div');
-                bottomCell.className = 'flex flex-col items-center gap-1.5 px-1';
-                bottomCell.innerHTML = `
-                    <input type="text" value="${state.results[i]}" oninput="updateResultItem(${i}, this.value)"
-                        class="w-full text-center font-bold text-xs sm:text-sm px-1.5 py-2 rounded-xl border transition-all focus:outline-none ${
-                            landedPalette
-                                ? (isHighlightResult ? 'winner-card bg-slate-900 text-white' : 'bg-slate-900 text-slate-200')
-                                : 'bg-slate-950/90 text-slate-300 border-slate-700/80 focus:border-pink-400'
-                        }"
-                        style="${landedPalette ? `border-color: ${landedPalette.color}; border-width: 2px;` : ''}"
-                        placeholder="결과 ${i + 1}">
-                    <div class="h-6 flex items-center justify-center">
-                        ${
-                            landedPalette
-                                ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold text-slate-950 flex items-center gap-1 shadow" style="background-color: ${landedPalette.color}">
-                                     ${landedPalette.emoji} ${state.players[landedPlayerIdx]}
-                                   </span>`
-                                : `<span class="text-[11px] text-slate-600 font-medium">대기중</span>`
-                        }
-                    </div>
-                `;
-                bottomRow.appendChild(bottomCell);
-            }
-
-            renderSummaryCards();
-        }
-
-        function renderSummaryCards() {
-            const n = state.numPlayers;
-            const grid = document.getElementById('summary-cards-grid');
-            const progressText = document.getElementById('summary-progress-text');
-            grid.innerHTML = '';
-
-            let doneCount = 0;
-            for (let i = 0; i < n; i++) {
-                if (state.playerStatus[i] === 'done') doneCount++;
-            }
-
-            progressText.textContent = doneCount === 0
-                ? '아직 공개된 결과가 없습니다. 상단 캐릭터를 클릭하거나 [전체 출발]을 눌러보세요!'
-                : `총 ${n}명 중 ${doneCount}명의 사다리 결과가 공개되었습니다.`;
-
-            for (let i = 0; i < n; i++) {
-                const pInfo = PLAYER_PALETTE[i];
-                const isDone = state.playerStatus[i] === 'done';
-                const targetCol = state.finalMapping[i];
-                const resultStr = state.results[targetCol];
-                const isPenaltyOrWin = isDone && !resultStr.includes('꽝');
-
-                const card = document.createElement('div');
-                card.onclick = () => {
-                    if (isDone) {
-                        state.selectedPlayer = (state.selectedPlayer === i) ? null : i;
-                        renderDOMInputs();
-                        drawLadderCanvas();
-                    } else {
-                        startSinglePlayer(i);
-                    }
-                };
-                card.className = `cursor-pointer rounded-2xl p-3.5 border transition-all flex items-center justify-between gap-2 ${
-                    isDone
-                        ? (isPenaltyOrWin ? 'bg-indigo-950/60 border-indigo-500/60 shadow-lg shadow-indigo-500/10' : 'bg-slate-950/80 border-slate-800')
-                        : 'bg-slate-950/40 border-slate-800/60 opacity-75 hover:opacity-100'
-                }`;
-
-                card.innerHTML = `
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0"
-                              style="background-color: ${pInfo.color}25; border: 1.5px solid ${pInfo.color}">
-                            ${pInfo.emoji}
-                        </span>
-                        <div class="truncate">
-                            <div class="font-bold text-sm text-white truncate">${state.players[i]}</div>
-                            <div class="text-[11px] text-slate-400">${isDone ? '도착 완료 (클릭해 경로 강조)' : '클릭하여 출발'}</div>
-                        </div>
-                    </div>
-                    <div class="shrink-0 text-right">
-                        ${
-                            isDone
-                                ? `<span class="px-2.5 py-1 rounded-xl font-extrabold text-xs sm:text-sm inline-block ${
-                                    isPenaltyOrWin ? 'bg-gradient-to-r from-amber-400 to-pink-500 text-slate-950 shadow' : 'bg-slate-800 text-slate-300'
-                                  }">${resultStr}</span>`
-                                : `<span class="px-2.5 py-1 rounded-xl bg-slate-800/80 text-slate-500 font-bold text-xs">? 미공개</span>`
-                        }
-                    </div>
-                `;
-                grid.appendChild(card);
-            }
-        }
-
-        function getCanvasCoord(col, yNorm, width, height) {
-            const n = state.numPlayers;
-            const colWidth = width / n;
-            const x = colWidth * (col + 0.5);
-            const padY = 22;
-            const usableH = height - padY * 2;
-            const y = padY + yNorm * usableH;
-            return { x, y };
-        }
-
-        function drawLadderCanvas() {
-            const canvas = document.getElementById('ladder-canvas');
-            if (!canvas) return;
-            const rect = canvas.parentElement.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
-
-            if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
-                canvas.width = Math.floor(rect.width * dpr);
-                canvas.height = Math.floor(rect.height * dpr);
-            }
-
-            const ctx = canvas.getContext('2d');
-            ctx.save();
-            ctx.scale(dpr, dpr);
-
-            const w = rect.width;
-            const h = rect.height;
-            const n = state.numPlayers;
-
-            ctx.clearRect(0, 0, w, h);
-
-            // Check if any player has started or finished
-            const anyActiveOrDone = state.playerStatus.some(st => st !== 'idle');
-            const blindOverlay = document.getElementById('blind-overlay-badge');
-            if (state.blindMode && !anyActiveOrDone) {
-                blindOverlay.classList.remove('hidden');
-            } else {
-                blindOverlay.classList.add('hidden');
-            }
-
-            // 1. Draw Vertical Rails
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            for (let c = 0; c < n; c++) {
-                const topPt = getCanvasCoord(c, 0, w, h);
-                const botPt = getCanvasCoord(c, 1, w, h);
-
-                ctx.strokeStyle = '#334155';
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.moveTo(topPt.x, topPt.y);
-                ctx.lineTo(botPt.x, botPt.y);
-                ctx.stroke();
-
-                // Top & bottom rail node dots
-                ctx.fillStyle = PLAYER_PALETTE[c].color;
-                ctx.beginPath();
-                ctx.arc(topPt.x, topPt.y, 5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = '#64748b';
-                ctx.beginPath();
-                ctx.arc(botPt.x, botPt.y, 5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // 2. Draw Horizontal Rungs (Hidden if Blind Mode is active & no player started)
-            if (!state.blindMode) {
-                ctx.strokeStyle = '#475569';
-                ctx.lineWidth = 3.5;
-                state.rungs.forEach(r => {
-                    const p1 = getCanvasCoord(r.col, r.yNorm, w, h);
-                    const p2 = getCanvasCoord(r.col + 1, r.yNorm, w, h);
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.stroke();
-                });
-            } else {
-                // In blind mode, draw subtle dashed mystery zone lines
-                ctx.save();
-                ctx.strokeStyle = 'rgba(99, 102, 241, 0.14)';
-                ctx.setLineDash([6, 6]);
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(16, 36, w - 32, h - 72);
-                ctx.restore();
-            }
-
-            // 3. Draw Active & Completed Player Trails
-            for (let i = 0; i < n; i++) {
-                if (state.playerStatus[i] === 'idle') continue;
-                const isSelected = state.selectedPlayer === i;
-                const hasSelection = state.selectedPlayer !== null;
-                const alpha = hasSelection ? (isSelected ? 1.0 : 0.22) : 0.92;
-
-                drawPlayerTrail(ctx, i, state.progress[i], w, h, alpha, isSelected);
-            }
-
-            // Re-draw selected player on very top so it stands out cleanly
-            if (state.selectedPlayer !== null && state.playerStatus[state.selectedPlayer] !== 'idle') {
-                drawPlayerTrail(ctx, state.selectedPlayer, state.progress[state.selectedPlayer], w, h, 1.0, true);
-            }
-
-            ctx.restore();
-        }
-
-        function drawPlayerTrail(ctx, playerIdx, prog, w, h, alpha, isHighlighted) {
-            const pInfo = PLAYER_PALETTE[playerIdx];
-            const waypoints = state.paths[playerIdx];
-            if (!waypoints || waypoints.length < 2) return;
-
-            // Convert normalized waypoints to pixel coordinates and measure total length
-            const pxPts = waypoints.map(wp => getCanvasCoord(wp.col, wp.yNorm, w, h));
-            const segLengths = [];
-            let totalLen = 0;
-            for (let i = 0; i < pxPts.length - 1; i++) {
-                const d = Math.hypot(pxPts[i + 1].x - pxPts[i].x, pxPts[i + 1].y - pxPts[i].y);
-                segLengths.push(d);
-                totalLen += d;
-            }
-
-            const targetDist = prog * totalLen;
-            let walked = 0;
-            let headX = pxPts[0].x;
-            let headY = pxPts[0].y;
-            let currentSegIndex = 0;
-
-            ctx.save();
-            ctx.globalAlpha = alpha;
-            ctx.strokeStyle = pInfo.color;
-            ctx.lineWidth = isHighlighted ? 6.5 : 4.5;
-            ctx.shadowColor = pInfo.color;
-            ctx.shadowBlur = isHighlighted ? 14 : 6;
-
-            ctx.beginPath();
-            ctx.moveTo(pxPts[0].x, pxPts[0].y);
-
-            for (let i = 0; i < segLengths.length; i++) {
-                const segLen = segLengths[i];
-                if (walked + segLen <= targetDist) {
-                    ctx.lineTo(pxPts[i + 1].x, pxPts[i + 1].y);
-                    headX = pxPts[i + 1].x;
-                    headY = pxPts[i + 1].y;
-                    walked += segLen;
-                    currentSegIndex = i + 1;
-                } else {
-                    const remain = targetDist - walked;
-                    const frac = segLen > 0 ? remain / segLen : 0;
-                    headX = pxPts[i].x + (pxPts[i + 1].x - pxPts[i].x) * frac;
-                    headY = pxPts[i].y + (pxPts[i + 1].y - pxPts[i].y) * frac;
-                    ctx.lineTo(headX, headY);
-                    currentSegIndex = i;
-                    break;
-                }
-            }
-            ctx.stroke();
-
-            // Trigger sound effect when hitting a new corner during animation
-            if (state.playerStatus[playerIdx] === 'running' && currentSegIndex > state.lastSoundStep[playerIdx]) {
-                state.lastSoundStep[playerIdx] = currentSegIndex;
-                playTurnSound(playerIdx);
-            }
-
-            // Draw Moving Avatar Marker at (headX, headY)
-            ctx.shadowBlur = 10;
-            ctx.fillStyle = '#0f172a';
-            ctx.strokeStyle = pInfo.color;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(headX, headY, isHighlighted ? 16 : 14, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.shadowBlur = 0;
-            ctx.font = `${isHighlighted ? '16px' : '14px'} sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(pInfo.emoji, headX, headY + 1);
-
-            ctx.restore();
-        }
-
-        function startAnimationLoop() {
-            if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
-
-            function step() {
-                let stillRunning = false;
-                let anyJustFinished = false;
-
-                // Speed delta per frame
-                const speedDelta = state.speedMode === 'fast' ? 0.022 : 0.0095;
-
-                for (let i = 0; i < state.numPlayers; i++) {
-                    if (state.playerStatus[i] === 'running') {
-                        if (state.speedMode === 'instant') {
-                            state.progress[i] = 1.0;
-                        } else {
-                            state.progress[i] += speedDelta;
-                        }
-
-                        if (state.progress[i] >= 1.0) {
-                            state.progress[i] = 1.0;
-                            state.playerStatus[i] = 'done';
-                            anyJustFinished = true;
-                            const resText = state.results[state.finalMapping[i]];
-                            playFinishSound(!resText.includes('꽝'));
-                        } else {
-                            stillRunning = true;
-                        }
-                    }
-                }
-
-                drawLadderCanvas();
-
-                if (anyJustFinished) {
-                    renderDOMInputs();
-                }
-
-                if (stillRunning) {
-                    state.animFrameId = requestAnimationFrame(step);
-                } else {
-                    state.animFrameId = null;
-                }
-            }
-
-            state.animFrameId = requestAnimationFrame(step);
-        }
-
-        function startSinglePlayer(idx) {
-            state.selectedPlayer = idx;
-            state.playerStatus[idx] = 'running';
-            state.progress[idx] = 0;
-            state.lastSoundStep[idx] = 0;
-            playTone(440, 'sine', 0.08, 0.08);
-            renderDOMInputs();
-            startAnimationLoop();
-        }
-
-        function startAllPlayers() {
-            state.selectedPlayer = null;
-            for (let i = 0; i < state.numPlayers; i++) {
-                state.playerStatus[i] = 'running';
-                state.progress[i] = 0;
-                state.lastSoundStep[i] = 0;
-            }
-            playTone(523.25, 'triangle', 0.1, 0.09);
-            renderDOMInputs();
-            startAnimationLoop();
-        }
-
-        function revealAllInstant() {
-            if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
-            state.selectedPlayer = null;
-            for (let i = 0; i < state.numPlayers; i++) {
-                state.playerStatus[i] = 'done';
-                state.progress[i] = 1.0;
-            }
-            playFinishSound(true);
-            renderDOMInputs();
-            drawLadderCanvas();
-            showToast('전체 사다리 결과가 즉시 공개되었습니다!');
-        }
-
-        function resetTraces() {
-            if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
-            state.selectedPlayer = null;
-            for (let i = 0; i < state.numPlayers; i++) {
-                state.playerStatus[i] = 'idle';
-                state.progress[i] = 0;
-                state.lastSoundStep[i] = 0;
-            }
-            renderDOMInputs();
-            drawLadderCanvas();
-            showToast('진행 경로가 초기화되었습니다.');
-        }
-
-        function hoverPlayer(idx) {
-            if (state.playerStatus[idx] === 'done') {
-                state.selectedPlayer = idx;
-                drawLadderCanvas();
-            }
-        }
-
-        function setPlayerCount(val) {
-            const count = Math.max(2, Math.min(12, parseInt(val, 10) || 5));
-            state.numPlayers = count;
-            document.getElementById('player-count-label').textContent = count;
-            document.getElementById('player-slider').value = count;
-            resetStateArrays();
-            generateRungs();
-            renderDOMInputs();
-            drawLadderCanvas();
-        }
-
-        function changePlayerCount(delta) {
-            setPlayerCount(state.numPlayers + delta);
-        }
-
-        function resetStateArrays() {
-            state.playerStatus = new Array(state.numPlayers).fill('idle');
-            state.progress = new Array(state.numPlayers).fill(0);
-            state.lastSoundStep = new Array(state.numPlayers).fill(0);
-            state.selectedPlayer = null;
-        }
-
-        function updatePlayerName(idx, val) {
-            state.players[idx] = val || `참가자 ${idx + 1}`;
-            renderSummaryCards();
-        }
-
-        function updateResultItem(idx, val) {
-            state.results[idx] = val || `결과 ${idx + 1}`;
-            renderSummaryCards();
-        }
-
-        function regenerateLadder() {
-            resetStateArrays();
-            generateRungs();
-            renderDOMInputs();
-            drawLadderCanvas();
-            playTone(392, 'sine', 0.08, 0.07);
-            showToast('새로운 사다리 가로줄이 생성되었습니다!');
-        }
-
-        function shuffleInputs() {
-            const n = state.numPlayers;
-            // Fisher-Yates shuffle on active results
-            const activeResults = state.results.slice(0, n);
-            for (let i = n - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [activeResults[i], activeResults[j]] = [activeResults[j], activeResults[i]];
-            }
-            for (let i = 0; i < n; i++) {
-                state.results[i] = activeResults[i];
-            }
-            resetTraces();
-            playTone(659.25, 'sine', 0.09, 0.07);
-            showToast('당첨/벌칙 항목 위치가 무작위로 섞였습니다!');
-        }
-
-        function applyPreset(type) {
-            const n = state.numPlayers;
-            if (type === 'coffee') {
-                for (let i = 0; i < n; i++) state.results[i] = '통과 (무사)';
-                const winIdx = Math.floor(Math.random() * n);
-                state.results[winIdx] = '☕ 커피 쏘기!';
-                showToast('☕ 커피 내기 (1명 당첨) 프리셋이 적용되었습니다.');
-            } else if (type === 'lunch') {
-                const menus = ['🍔 수제버거', '🍜 마라탕/쌀국수', '🍣 초밥/일식', '🍕 피자/파스타', '🥘 김치찌개/한식', '🍗 치킨/찜닭', '🌮 타코/멕시칸', '🥟 중식/짜장면', '🥗 포케/샐러드', '🍖 삼겹살/고깃집', '🍛 카레/돈까스', '🥪 샌드위치'];
-                for (let i = 0; i < n; i++) state.results[i] = menus[i % menus.length];
-                showToast('🍔 점심 메뉴 추천 프리셋이 적용되었습니다.');
-            } else if (type === 'cleaning') {
-                const tasks = ['🧹 바닥 쓸기', '🧽 분리수거', '🫧 설거지/탕비실', '🗑️ 쓰레기통 비우기', '✨ 면제 (휴식!)', '🪴 환기/정리정돈'];
-                for (let i = 0; i < n; i++) state.results[i] = tasks[i % tasks.length];
-                showToast('🧹 청소 및 역할 분담 프리셋이 적용되었습니다.');
-            } else if (type === 'order') {
-                for (let i = 0; i < n; i++) state.results[i] = `${i + 1}번째 발표`;
-                shuffleInputs();
-                showToast('🔢 발표 순서 (1~N번째) 프리셋이 적용되었습니다.');
-                return;
-            }
-            resetTraces();
-        }
-
         function toggleBlindMode() {
             state.blindMode = !state.blindMode;
-            const btn = document.getElementById('blind-toggle-btn');
-            const icon = document.getElementById('blind-icon');
+            const overlay = document.getElementById('blind-overlay');
             const text = document.getElementById('blind-text');
-
             if (state.blindMode) {
-                btn.className = 'game-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border flex items-center gap-2 bg-indigo-600/30 text-indigo-200 border-indigo-500/60';
-                icon.className = 'fa-solid fa-eye-slash text-pink-400';
+                overlay.classList.remove('hidden');
                 text.textContent = '블라인드 ON';
-                showToast('🙈 블라인드 모드: 가로줄이 숨겨졌습니다!');
             } else {
-                btn.className = 'game-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border flex items-center gap-2 bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700';
-                icon.className = 'fa-solid fa-eye text-indigo-400';
+                overlay.classList.add('hidden');
                 text.textContent = '블라인드 OFF';
-                showToast('👀 블라인드 모드가 해제되었습니다.');
             }
-            drawLadderCanvas();
-        }
-
-        function setSpeed(mode) {
-            state.speedMode = mode;
-            ['normal', 'fast', 'instant'].forEach(m => {
-                const btn = document.getElementById('speed-' + m);
-                if (m === mode) {
-                    btn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white shadow';
-                } else {
-                    btn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white';
-                }
-            });
         }
 
         function toggleSound() {
-            state.soundEnabled = !state.soundEnabled;
-            const icon = document.getElementById('sound-icon');
-            icon.className = state.soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-500';
-            showToast(state.soundEnabled ? '🔊 효과음이 켜졌습니다.' : '🔇 효과음이 꺼졌습니다.');
+            state.soundOn = !state.soundOn;
+            document.getElementById('sound-icon').className = state.soundOn ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+            showToast(state.soundOn ? '효과음이 켜졌습니다.' : '효과음이 꺼졌습니다.');
         }
 
-        function copyResultsToClipboard() {
-            const n = state.numPlayers;
-            const anyDone = state.playerStatus.some(st => st === 'done');
-            if (!anyDone) {
-                revealAllInstant();
+        function changePlayerCount(delta) {
+            const next = state.count + delta;
+            if (next < 2 || next > 10) return;
+            state.count = next;
+            while (state.players.length < next) state.players.push(`참가자${state.players.length + 1}`);
+            while (state.results.length < next) state.results.push(state.results.length === 1 ? '당첨!' : '통과');
+            document.getElementById('player-count-display').textContent = `${state.count}명`;
+            generateNewLadder();
+        }
+
+        function applyPreset(type) {
+            syncInputsFromDOM();
+            if (type === 'coffee') {
+                state.results = Array.from({ length: state.count }, (_, i) => i === 0 ? '☕ 커피 쏘기!' : '통과');
+            } else if (type === 'lunch') {
+                const menus = ['제육볶음', '돈까스', '마라탕', '국밥', '햄버거', '초밥', '김치찌개', '파스타', '쌀국수', '짜장면'];
+                state.results = Array.from({ length: state.count }, (_, i) => menus[i % menus.length]);
+            } else if (type === 'order') {
+                state.results = Array.from({ length: state.count }, (_, i) => `${i + 1}번째 발표`);
+            }
+            shuffleResults();
+        }
+
+        function shuffleResults() {
+            syncInputsFromDOM();
+            const arr = state.results.slice(0, state.count);
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            for (let i = 0; i < state.count; i++) state.results[i] = arr[i];
+            renderPlayerAndResultInputs();
+            renderSummaryBoard();
+            showToast('결과 항목 순서를 무작위로 섞었습니다.');
+        }
+
+        function syncInputsFromDOM() {
+            for (let i = 0; i < state.count; i++) {
+                const pEl = document.getElementById(`player-input-${i}`);
+                const rEl = document.getElementById(`result-input-${i}`);
+                if (pEl) state.players[i] = pEl.value || `참가자${i + 1}`;
+                if (rEl) state.results[i] = rEl.value || `결과${i + 1}`;
+            }
+        }
+
+        function renderPlayerAndResultInputs() {
+            const topRow = document.getElementById('top-players-row');
+            const botRow = document.getElementById('bottom-results-row');
+            topRow.style.gridTemplateColumns = `repeat(${state.count}, minmax(0, 1fr))`;
+            botRow.style.gridTemplateColumns = `repeat(${state.count}, minmax(0, 1fr))`;
+            topRow.innerHTML = '';
+            botRow.innerHTML = '';
+
+            for (let i = 0; i < state.count; i++) {
+                const color = COLORS[i % COLORS.length];
+                const avatar = AVATARS[i % AVATARS.length];
+
+                const pCol = document.createElement('div');
+                pCol.className = 'flex flex-col items-center gap-1.5';
+                pCol.innerHTML = `
+                    <button onclick="startSinglePlayer(${i})" class="btn-action w-11 h-11 rounded-2xl flex items-center justify-center text-xl shadow-md border-2 transition-transform hover:scale-105" style="background:${color}22; border-color:${color}" title="클릭하여 출발">
+                        ${avatar}
+                    </button>
+                    <input id="player-input-${i}" type="text" value="${state.players[i] || `참가자${i+1}`}" oninput="syncInputsFromDOM(); renderSummaryBoard();"
+                        class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-center font-semibold text-white focus:border-amber-400 focus:outline-none">
+                `;
+                topRow.appendChild(pCol);
+
+                const isWinner = state.completed && Object.values(state.completed).some(c => c.destCol === i);
+                const rCol = document.createElement('div');
+                rCol.className = 'flex flex-col items-center';
+                rCol.innerHTML = `
+                    <input id="result-input-${i}" type="text" value="${state.results[i] || `결과${i+1}`}" oninput="syncInputsFromDOM(); renderSummaryBoard();"
+                        class="w-full bg-slate-950 border ${isWinner ? 'border-amber-400 text-amber-300 font-bold' : 'border-slate-700 text-slate-200'} rounded-lg px-2 py-1.5 text-xs text-center focus:border-amber-400 focus:outline-none">
+                `;
+                botRow.appendChild(rCol);
+            }
+        }
+
+        function generateNewLadder() {
+            syncInputsFromDOM();
+            state.completed = {};
+            state.activeAnim = null;
+            state.bridges = [];
+
+            const rows = 9;
+            for (let r = 1; r <= rows; r++) {
+                const yRatio = r / (rows + 1);
+                let col = 0;
+                while (col < state.count - 1) {
+                    if (Math.random() < 0.48) {
+                        const jitter = (Math.random() - 0.5) * 0.03;
+                        state.bridges.push({ col, yRatio: yRatio + jitter });
+                        col += 2; // Prevent adjacent horizontal collision
+                    } else {
+                        col += 1;
+                    }
+                }
+            }
+            // Ensure at least one bridge per column gap
+            for (let c = 0; c < state.count - 1; c++) {
+                if (!state.bridges.some(b => b.col === c)) {
+                    state.bridges.push({ col: c, yRatio: 0.25 + Math.random() * 0.5 });
+                }
+            }
+            state.bridges.sort((a, b) => a.yRatio - b.yRatio);
+
+            renderPlayerAndResultInputs();
+            renderSummaryBoard();
+            drawLadderCanvas();
+        }
+
+        function computePathForPlayer(startCol) {
+            let curCol = startCol;
+            let curY = 0;
+            const points = [{ col: curCol, yRatio: 0 }];
+
+            for (const b of state.bridges) {
+                if (b.yRatio > curY) {
+                    if (b.col === curCol) {
+                        points.push({ col: curCol, yRatio: b.yRatio });
+                        curCol += 1;
+                        points.push({ col: curCol, yRatio: b.yRatio });
+                        curY = b.yRatio;
+                    } else if (b.col === curCol - 1) {
+                        points.push({ col: curCol, yRatio: b.yRatio });
+                        curCol -= 1;
+                        points.push({ col: curCol, yRatio: b.yRatio });
+                        curY = b.yRatio;
+                    }
+                }
+            }
+            points.push({ col: curCol, yRatio: 1 });
+            return { destCol: curCol, points };
+        }
+
+        function getColX(col, width) {
+            const cellW = width / state.count;
+            return cellW * col + cellW / 2;
+        }
+
+        function drawLadderCanvas(animSegment = null) {
+            const canvas = document.getElementById('ladder-canvas');
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const padY = 18;
+            const usableH = h - padY * 2;
+            const toY = (yRatio) => padY + yRatio * usableH;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Vertical lines
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            for (let c = 0; c < state.count; c++) {
+                const x = getColX(c, w);
+                ctx.beginPath();
+                ctx.moveTo(x, padY);
+                ctx.lineTo(x, h - padY);
+                ctx.stroke();
             }
 
-            const lines = ['🪜 [두근두근 사다리타기 결과]'];
-            for (let i = 0; i < n; i++) {
-                const emoji = PLAYER_PALETTE[i].emoji;
-                const pName = state.players[i];
-                const targetCol = state.finalMapping[i];
-                const res = state.results[targetCol];
-                lines.push(`${emoji} ${pName} ➔ ${res}`);
+            // Horizontal bridges
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 3;
+            state.bridges.forEach(b => {
+                const x1 = getColX(b.col, w);
+                const x2 = getColX(b.col + 1, w);
+                const y = toY(b.yRatio);
+                ctx.beginPath();
+                ctx.moveTo(x1, y);
+                ctx.lineTo(x2, y);
+                ctx.stroke();
+            });
+
+            // Draw completed paths
+            Object.keys(state.completed).forEach(pIdx => {
+                const comp = state.completed[pIdx];
+                const color = COLORS[pIdx % COLORS.length];
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 4;
+                ctx.globalAlpha = 0.75;
+                ctx.beginPath();
+                comp.points.forEach((pt, idx) => {
+                    const px = getColX(pt.col, w);
+                    const py = toY(pt.yRatio);
+                    if (idx === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            });
+
+            // Active animated path
+            if (animSegment) {
+                const { playerIdx, drawnPoints, headX, headY } = animSegment;
+                const color = COLORS[playerIdx % COLORS.length];
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 5;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                drawnPoints.forEach((pt, idx) => {
+                    if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
+                });
+                ctx.lineTo(headX, headY);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Avatar head
+                ctx.font = '20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(AVATARS[playerIdx % AVATARS.length], headX, headY);
+            }
+        }
+
+        function startSinglePlayer(playerIdx, onDone = null) {
+            if (state.activeAnim) return;
+            syncInputsFromDOM();
+            if (state.blindMode) {
+                document.getElementById('blind-overlay').classList.add('hidden');
             }
 
-            const textToCopy = lines.join('\n');
-            const textarea = document.createElement('textarea');
-            textarea.value = textToCopy;
-            document.body.appendChild(textarea);
-            textarea.select();
+            const canvas = document.getElementById('ladder-canvas');
+            const w = canvas.width;
+            const h = canvas.height;
+            const padY = 18;
+            const usableH = h - padY * 2;
+            const toY = (r) => padY + r * usableH;
+
+            const { destCol, points } = computePathForPlayer(playerIdx);
+            const pxPoints = points.map(p => ({ x: getColX(p.col, w), y: toY(p.yRatio) }));
+
+            let segIdx = 0;
+            let progress = 0;
+            const speed = 0.14;
+            state.activeAnim = true;
+
+            function step() {
+                if (segIdx >= pxPoints.length - 1) {
+                    state.activeAnim = null;
+                    state.completed[playerIdx] = { destCol, points };
+                    playTone(780, 0.12);
+                    drawLadderCanvas();
+                    renderPlayerAndResultInputs();
+                    renderSummaryBoard();
+                    if (onDone) onDone();
+                    return;
+                }
+
+                const p1 = pxPoints[segIdx];
+                const p2 = pxPoints[segIdx + 1];
+                progress += speed;
+                if (progress >= 1) {
+                    progress = 0;
+                    segIdx++;
+                    playTone(440 + segIdx * 35, 0.04);
+                }
+
+                const curP1 = pxPoints[Math.min(segIdx, pxPoints.length - 1)];
+                const curP2 = pxPoints[Math.min(segIdx + 1, pxPoints.length - 1)];
+                const headX = curP1.x + (curP2.x - curP1.x) * progress;
+                const headY = curP1.y + (curP2.y - curP1.y) * progress;
+
+                drawLadderCanvas({
+                    playerIdx,
+                    drawnPoints: pxPoints.slice(0, segIdx + 1),
+                    headX,
+                    headY
+                });
+
+                requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function startAllPlayers() {
+            if (state.activeAnim) return;
+            let idx = 0;
+            function next() {
+                if (idx >= state.count) return;
+                if (state.completed[idx]) {
+                    idx++;
+                    next();
+                } else {
+                    startSinglePlayer(idx, () => {
+                        idx++;
+                        setTimeout(next, 120);
+                    });
+                }
+            }
+            next();
+        }
+
+        function revealAllInstant() {
+            syncInputsFromDOM();
+            if (state.blindMode) document.getElementById('blind-overlay').classList.add('hidden');
+            for (let i = 0; i < state.count; i++) {
+                state.completed[i] = computePathForPlayer(i);
+            }
+            playTone(880, 0.15);
+            drawLadderCanvas();
+            renderPlayerAndResultInputs();
+            renderSummaryBoard();
+            showToast('전체 사다리 결과가 즉시 공개되었습니다.');
+        }
+
+        function renderSummaryBoard() {
+            const list = document.getElementById('result-summary-list');
+            list.innerHTML = '';
+            let doneCount = 0;
+
+            for (let i = 0; i < state.count; i++) {
+                const pName = state.players[i] || `참가자${i + 1}`;
+                const avatar = AVATARS[i % AVATARS.length];
+                const color = COLORS[i % COLORS.length];
+                const comp = state.completed[i];
+                let resText = '대기 중...';
+                let isDone = false;
+
+                if (comp !== undefined) {
+                    resText = state.results[comp.destCol] || `결과${comp.destCol + 1}`;
+                    isDone = true;
+                    doneCount++;
+                }
+
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800';
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">${avatar}</span>
+                        <span class="text-xs font-bold" style="color:${color}">${pName}</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-slate-600"></i>
+                    <span class="font-mono text-xs font-bold ${isDone ? 'text-amber-400' : 'text-slate-500'}">${resText}</span>
+                `;
+                list.appendChild(item);
+            }
+            document.getElementById('completed-count').textContent = `${doneCount} / ${state.count} 완료`;
+        }
+
+        function copyResultText() {
+            syncInputsFromDOM();
+            const lines = ['[🪜 사다리타기 게임 결과]'];
+            for (let i = 0; i < state.count; i++) {
+                const pName = state.players[i] || `참가자${i + 1}`;
+                const comp = state.completed[i] || computePathForPlayer(i);
+                const rName = state.results[comp.destCol] || `결과${comp.destCol + 1}`;
+                lines.push(`${AVATARS[i % AVATARS.length]} ${pName} ➔ ${rName}`);
+            }
+            const temp = document.createElement('textarea');
+            temp.value = lines.join('\n');
+            document.body.appendChild(temp);
+            temp.select();
             document.execCommand('copy');
-            document.body.removeChild(textarea);
-
-            showToast('📋 사다리 결과 텍스트가 복사되었습니다! 메신저에 붙여넣어 보세요.');
+            document.body.removeChild(temp);
+            showToast('전체 결과 텍스트가 클립보드에 복사되었습니다!');
         }
 
-        // Canvas click handler to select/highlight a column path
-        document.getElementById('ladder-canvas').addEventListener('click', (e) => {
-            const canvas = e.currentTarget;
-            const rect = canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const col = Math.floor((clickX / rect.width) * state.numPlayers);
-            if (col >= 0 && col < state.numPlayers) {
-                startSinglePlayer(col);
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            drawLadderCanvas();
-        });
-
-        window.onload = function () {
-            resetStateArrays();
-            generateRungs();
-            renderDOMInputs();
-            drawLadderCanvas();
-        };
+        window.addEventListener('resize', () => drawLadderCanvas());
+        window.onload = () => generateNewLadder();
     </script>
 </body>
 </html>
