@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>두근두근 사다리타기 게임 | K-Ladder Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 60%, #090d16 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Game Buttons & Interactive Cards */
+        .game-btn {
+            transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+        }
+        .game-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        .game-btn:active:not(:disabled) {
+            transform: translateY(1px) scale(0.97);
+        }
+
+        .player-node {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .player-node:hover {
+            transform: translateY(-4px) scale(1.06);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 12px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 24px rgba(236, 72, 153, 0.75); }
+        }
+        .winner-card {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        .floating-avatar {
+            animation: float-slow 2.6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-indigo-500 selection:text-white">
+
+    <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-900/80 border-b border-slate-800/80 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-stairs text-white text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-white via-indigo-200 to-pink-200 bg-clip-text text-transparent">
+                            두근두근 사다리타기
+                        </h1>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PARTY EDITION</span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block">공정한 1:1 매칭 보장 · 블라인드 모드 · 결과 원클릭 공유</p>
+                </div>
+            </div>
+
+            <!-- Quick Global Toggles -->
+            <div class="flex items-center flex-wrap gap-2">
+                <!-- Blind Mode Toggle -->
+                <button id="blind-toggle-btn" onclick="toggleBlindMode()" class="game-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border flex items-center gap-2 bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700">
+                    <i id="blind-icon" class="fa-solid fa-eye text-indigo-400"></i>
+                    <span id="blind-text">블라인드 OFF</span>
+                </button>
+
+                <!-- Speed Selector -->
+                <div class="flex items-center bg-slate-950/90 p-1 rounded-xl border border-slate-800">
+                    <button onclick="setSpeed('normal')" id="speed-normal" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white shadow">일반</button>
+                    <button onclick="setSpeed('fast')" id="speed-fast" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">빠르게</button>
+                    <button onclick="setSpeed('instant')" id="speed-instant" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">즉시</button>
+                </div>
+
+                <!-- Sound Toggle -->
+                <button id="sound-toggle-btn" onclick="toggleSound()" class="game-btn w-9 h-9 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-center text-amber-400 hover:bg-slate-700" title="효과음 켜기/끄기">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col gap-5">
+
+        <!-- Control & Preset Bar -->
+        <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                
+                <!-- Player Count Controls (4 cols) -->
+                <div class="lg:col-span-4 flex items-center justify-between sm:justify-start gap-4 bg-slate-950/70 px-4 py-3 rounded-2xl border border-slate-800/80">
+                    <div>
+                        <span class="text-xs text-slate-400 block">참가 인원 (2~12명)</span>
+                        <div class="text-lg font-extrabold text-white flex items-baseline gap-1">
+                            <span id="player-count-label" class="text-2xl text-indigo-400">5</span>명
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changePlayerCount(-1)" class="game-btn w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-base flex items-center justify-center">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <input id="player-slider" type="range" min="2" max="12" value="5" oninput="setPlayerCount(this.value)" class="w-24 sm:w-28 accent-indigo-500 cursor-pointer">
+                        <button onclick="changePlayerCount(1)" class="game-btn w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-base flex items-center justify-center">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Presets (5 cols) -->
+                <div class="lg:col-span-5 flex flex-wrap items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-400 mr-1"><i class="fa-solid fa-wand-magic-sparkles text-pink-400 mr-1"></i>테마 자동채우기:</span>
+                    <button onclick="applyPreset('coffee')" class="game-btn px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold">
+                        ☕ 커피 내기 (1명 당첨)
+                    </button>
+                    <button onclick="applyPreset('lunch')" class="game-btn px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+                        🍔 점심 메뉴
+                    </button>
+                    <button onclick="applyPreset('cleaning')" class="game-btn px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold">
+                        🧹 청소/당번
+                    </button>
+                    <button onclick="applyPreset('order')" class="game-btn px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 text-xs font-bold">
+                        🔢 발표 순서 (1~N등)
+                    </button>
+                </div>
+
+                <!-- Shuffle & Regenerate Buttons (3 cols) -->
+                <div class="lg:col-span-3 flex items-center justify-end gap-2">
+                    <button onclick="shuffleInputs()" class="game-btn flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center justify-center gap-1.5" title="참가자와 벌칙 순서를 무작위로 섞습니다">
+                        <i class="fa-solid fa-shuffle text-pink-400"></i> 순서 섞기
+                    </button>
+                    <button onclick="regenerateLadder()" class="game-btn flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 text-xs font-bold flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-rotate"></i> 사다리 다시 그리기
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Main Ladder Stage Card -->
+        <section class="bg-slate-900/95 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col gap-3 relative overflow-hidden">
+            
+            <!-- Top Action Bar inside Stage -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800/80">
+                <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>캐릭터 아이콘을 누르면 개별 출발하며, 이름을 클릭해 직접 수정할 수 있습니다.</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="startAllPlayers()" class="game-btn px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-500/25 flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> 전체 출발
+                    </button>
+                    <button onclick="revealAllInstant()" class="game-btn px-3.5 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> 전체 결과 바로보기
+                    </button>
+                    <button onclick="resetTraces()" class="game-btn px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold text-xs sm:text-sm" title="진행 중인 경로 초기화">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Horizontal Container for Mobile when 8+ players -->
+            <div class="w-full overflow-x-auto pb-2">
+                <div id="ladder-board-wrapper" class="min-w-[560px] w-full flex flex-col select-none">
+                    
+                    <!-- Top Row: Player Avatars & Name Inputs -->
+                    <div id="players-top-row" class="grid gap-2 mb-2">
+                        <!-- Dynamically populated -->
+                    </div>
+
+                    <!-- Center HTML5 Canvas for Ladder & Animated Avatars -->
+                    <div class="relative w-full h-[360px] sm:h-[420px] bg-slate-950/90 rounded-2xl border border-slate-800/90 overflow-hidden shadow-inner">
+                        <canvas id="ladder-canvas" class="w-full h-full block cursor-pointer"></canvas>
+                        
+                        <!-- Blind Mode Center Overlay Badge -->
+                        <div id="blind-overlay-badge" class="hidden pointer-events-none absolute inset-0 flex items-center justify-center">
+                            <div class="bg-slate-900/95 border border-indigo-500/50 px-6 py-4 rounded-2xl shadow-2xl text-center backdrop-blur-md">
+                                <div class="text-2xl mb-1">🙈 <span class="font-extrabold text-indigo-300">블라인드 모드 활성화됨</span></div>
+                                <p class="text-xs text-slate-400">참가자가 출발하면 숨겨진 가로줄이 드러납니다!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row: Result / Penalty Inputs -->
+                    <div id="results-bottom-row" class="grid gap-2 mt-2">
+                        <!-- Dynamically populated -->
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Summary Panel -->
+        <section id="results-summary-section" class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-base sm:text-lg text-white">사다리 매칭 결과 요약</h2>
+                        <p class="text-xs text-slate-400" id="summary-progress-text">아직 공개된 결과가 없습니다. 참가자를 클릭해 출발시켜 보세요!</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyResultsToClipboard()" class="game-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-indigo-600/25">
+                        <i class="fa-regular fa-copy"></i> 결과 텍스트 복사 (카톡/슬랙 공유)
+                    </button>
+                </div>
+            </div>
+
+            <div id="summary-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <!-- Dynamically populated summary cards -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Non-intrusive Toast Notification -->
+    <div id="toast-box" class="fixed bottom-6 right-6 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-800/95 border border-indigo-500/60 text-white text-xs sm:text-sm font-semibold shadow-2xl backdrop-blur-md">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toast-msg">알림 메시지</span>
+    </div>
+
+    <script>
+        // Vibrant colors and cute emoji avatars for up to 12 players
+        const PLAYER_PALETTE = [
+            { color: '#f43f5e', glow: 'rgba(244, 63, 94, 0.5)', emoji: '🦊', name: '참가자 1' },
+            { color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.5)', emoji: '🐼', name: '참가자 2' },
+            { color: '#10b981', glow: 'rgba(16, 185, 129, 0.5)', emoji: '🐸', name: '참가자 3' },
+            { color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.5)', emoji: '🦁', name: '참가자 4' },
+            { color: '#a855f7', glow: 'rgba(168, 85, 247, 0.5)', emoji: '🐰', name: '참가자 5' },
+            { color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.5)', emoji: '🐧', name: '참가자 6' },
+            { color: '#ec4899', glow: 'rgba(236, 72, 153, 0.5)', emoji: '🦄', name: '참가자 7' },
+            { color: '#84cc16', glow: 'rgba(132, 204, 22, 0.5)', emoji: '🦖', name: '참가자 8' },
+            { color: '#f97316', glow: 'rgba(249, 115, 22, 0.5)', emoji: '🐯', name: '참가자 9' },
+            { color: '#6366f1', glow: 'rgba(99, 102, 241, 0.5)', emoji: '🐨', name: '참가자 10' },
+            { color: '#14b8a6', glow: 'rgba(20, 184, 166, 0.5)', emoji: '🐙', name: '참가자 11' },
+            { color: '#eab308', glow: 'rgba(234, 179, 8, 0.5)', emoji: '🐥', name: '참가자 12' }
+        ];
+
+        // Global Application State
+        const state = {
+            numPlayers: 5,
+            players: ['김민준', '이서연', '박지훈', '최수아', '정우진', '강하윤', '조도윤', '윤서아', '장시우', '임지아', '한현우', '오하은'],
+            results: ['꽝', '꽝', '☕ 커피 쏘기!', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝', '꽝'],
+            rungs: [],          // Array of { col, yNorm } where col in [0..numPlayers-2], yNorm in (0.12..0.88)
+            paths: [],          // Precomputed path waypoints for each player
+            finalMapping: [],   // finalMapping[playerIdx] = resultIdx
+            playerStatus: [],   // 'idle' | 'running' | 'done'
+            progress: [],       // 0.0 to 1.0 along total path length
+            lastSoundStep: [],  // For triggering tick sound on corners
+            selectedPlayer: null,
+            blindMode: false,
+            speedMode: 'normal', // 'normal' | 'fast' | 'instant'
+            soundEnabled: true,
+            animFrameId: null
+        };
+
+        // Web Audio API Synthesizer for Cute Retro Game Sounds (No external audio files needed)
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) audioCtx = new AudioContextClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.08) {
+            if (!state.soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                // Ignore audio context restrictions
+            }
+        }
+
+        function playTurnSound(playerIdx) {
+            const baseFreq = 320 + (playerIdx % 6) * 55;
+            playTone(baseFreq, 'triangle', 0.06, 0.06);
+        }
+
+        function playFinishSound(isHighlight) {
+            if (!state.soundEnabled) return;
+            if (isHighlight) {
+                // Exciting fanfare chord
+                [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+                    setTimeout(() => playTone(f, 'triangle', 0.18, 0.11), idx * 65);
+                });
+            } else {
+                playTone(587.33, 'sine', 0.12, 0.07);
+                setTimeout(() => playTone(880, 'sine', 0.15, 0.07), 70);
+            }
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const box = document.getElementById('toast-box');
+            document.getElementById('toast-msg').textContent = msg;
+            box.classList.remove('hidden');
+            box.classList.add('flex');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                box.classList.add('hidden');
+                box.classList.remove('flex');
+            }, 2500);
+        }
+
+        function generateRungs() {
+            const n = state.numPlayers;
+            const totalSlots = 16; // Discrete horizontal levels to guarantee zero collisions
+            const yStart = 0.10;
+            const yEnd = 0.90;
+            const rungs = [];
+
+            // Track whethereach column gap (0 .. n-2) has at least one rung
+            const colCounts = new Array(n - 1).fill(0);
+
+            for (let s = 0; s < totalSlots; s++) {
+                const yNorm = yStart + (s / (totalSlots - 1)) * (yEnd - yStart);
+                let c = 0;
+                while (c < n - 1) {
+                    // Decide whether to place a rung between column c and c+1
+                    const prob = 0.42;
+                    if (Math.random() < prob) {
+                        // Add slight vertical jitter within safe slot bounds
+                        const jitter = (Math.random() - 0.5) * 0.018;
+                        rungs.push({ col: c, yNorm: yNorm + jitter });
+                        colCounts[c]++;
+                        c += 2; // Skip adjacent column at the same slot height so two rungs never touch!
+                    } else {
+                        c += 1;
+                    }
+                }
+            }
+
+            // Ensure every adjacent pair of columns has at least 2 rungs for fun unpredictability
+            for (let c = 0; c < n - 1; c++) {
+                while (colCounts[c] < 2) {
+                    const randomSlot = Math.floor(Math.random() * totalSlots);
+                    const candidateY = yStart + (randomSlot / (totalSlots - 1)) * (yEnd - yStart);
+                    // Check if any existing rung is too close vertically in col-1, col, or col+1
+                    const conflict = rungs.some(r => Math.abs(r.col - c) <= 1 && Math.abs(r.yNorm - candidateY) < 0.045);
+                    if (!conflict) {
+                        rungs.push({ col: c, yNorm: candidateY });
+                        colCounts[c]++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            // Sort rungs top to bottom
+            rungs.sort((a, b) => a.yNorm - b.yNorm);
+            state.rungs = rungs;
+            computeAllPaths();
+        }
+
+        // Compute normalized waypoints [{col, yNorm}, ...] for every starting player
+        function computeAllPaths() {
+            const n = state.numPlayers;
+            state.paths = [];
+            state.finalMapping = new Array(n).fill(0);
+
+            for (let startCol = 0; startCol < n; startCol++) {
+                let currCol = startCol;
+                let currY = 0.0;
+                const waypoints = [{ col: currCol, yNorm: 0.0 }];
+
+                for (let i = 0; i < state.rungs.length; i++) {
+                    const r = state.rungs[i];
+                    if (r.yNorm > currY) {
+                        if (r.col === currCol) {
+                            // Move down to rung, then right to currCol + 1
+                            waypoints.push({ col: currCol, yNorm: r.yNorm });
+                            currCol = currCol + 1;
+                            waypoints.push({ col: currCol, yNorm: r.yNorm });
+                            currY = r.yNorm;
+                        } else if (r.col === currCol - 1) {
+                            // Move down to rung, then left to currCol - 1
+                            waypoints.push({ col: currCol, yNorm: r.yNorm });
+                            currCol = currCol - 1;
+                            waypoints.push({ col: currCol, yNorm: r.yNorm });
+                            currY = r.yNorm;
+                        }
+                    }
+                }
+
+                waypoints.push({ col: currCol, yNorm: 1.0 });
+                state.paths.push(waypoints);
+                state.finalMapping[startCol] = currCol;
+            }
+        }
+
+        function renderDOMInputs() {
+            const n = state.numPlayers;
+            const topRow = document.getElementById('players-top-row');
+            const bottomRow = document.getElementById('results-bottom-row');
+            const wrapper = document.getElementById('ladder-board-wrapper');
+
+            // Adjust minimum width so 10~12 players remain comfortable on mobile
+            wrapper.style.minWidth = `${Math.max(540, n * 88)}px`;
+
+            topRow.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+            bottomRow.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+
+            topRow.innerHTML = '';
+            bottomRow.innerHTML = '';
+
+            for (let i = 0; i < n; i++) {
+                const pInfo = PLAYER_PALETTE[i];
+                const isDone = state.playerStatus[i] === 'done';
+                const isSelected = state.selectedPlayer === i;
+
+                // Top Player Card
+                const topCell = document.createElement('div');
+                topCell.className = 'flex flex-col items-center gap-1.5 px-1';
+                topCell.innerHTML = `
+                    <button onclick="startSinglePlayer(${i})" onmouseenter="hoverPlayer(${i})"
+                        class="player-node w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center shadow-lg border-2 relative cursor-pointer ${isSelected ? 'ring-4 ring-white/40 scale-105' : ''}"
+                        style="background: linear-gradient(135deg, ${pInfo.color}33, ${pInfo.color}66); border-color: ${pInfo.color};"
+                        title="${state.players[i]} 출발하기!">
+                        <span class="text-xl sm:text-2xl floating-avatar">${pInfo.emoji}</span>
+                        <span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center text-slate-950 shadow"
+                              style="background-color: ${pInfo.color}">
+                            ${isDone ? '✓' : 'GO'}
+                        </span>
+                    </button>
+                    <input type="text" value="${state.players[i]}" oninput="updatePlayerName(${i}, this.value)"
+                        class="w-full bg-slate-950/90 hover:bg-slate-900 focus:bg-slate-900 text-center font-bold text-xs sm:text-sm text-white px-1.5 py-1.5 rounded-xl border border-slate-700/80 focus:border-indigo-400 focus:outline-none transition-all"
+                        placeholder="참가자 ${i + 1}">
+                `;
+                topRow.appendChild(topCell);
+
+                // Check if any completed player landed on this bottom column `i`
+                const landedPlayerIdx = state.finalMapping.findIndex((targetCol, pIdx) => targetCol === i && state.playerStatus[pIdx] === 'done');
+                const landedPalette = landedPlayerIdx !== -1 ? PLAYER_PALETTE[landedPlayerIdx] : null;
+                const isHighlightResult = !state.results[i].includes('꽝') && state.results[i].trim() !== '';
+
+                // Bottom Result Card
+                const bottomCell = document.createElement('div');
+                bottomCell.className = 'flex flex-col items-center gap-1.5 px-1';
+                bottomCell.innerHTML = `
+                    <input type="text" value="${state.results[i]}" oninput="updateResultItem(${i}, this.value)"
+                        class="w-full text-center font-bold text-xs sm:text-sm px-1.5 py-2 rounded-xl border transition-all focus:outline-none ${
+                            landedPalette
+                                ? (isHighlightResult ? 'winner-card bg-slate-900 text-white' : 'bg-slate-900 text-slate-200')
+                                : 'bg-slate-950/90 text-slate-300 border-slate-700/80 focus:border-pink-400'
+                        }"
+                        style="${landedPalette ? `border-color: ${landedPalette.color}; border-width: 2px;` : ''}"
+                        placeholder="결과 ${i + 1}">
+                    <div class="h-6 flex items-center justify-center">
+                        ${
+                            landedPalette
+                                ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold text-slate-950 flex items-center gap-1 shadow" style="background-color: ${landedPalette.color}">
+                                     ${landedPalette.emoji} ${state.players[landedPlayerIdx]}
+                                   </span>`
+                                : `<span class="text-[11px] text-slate-600 font-medium">대기중</span>`
+                        }
+                    </div>
+                `;
+                bottomRow.appendChild(bottomCell);
+            }
+
+            renderSummaryCards();
+        }
+
+        function renderSummaryCards() {
+            const n = state.numPlayers;
+            const grid = document.getElementById('summary-cards-grid');
+            const progressText = document.getElementById('summary-progress-text');
+            grid.innerHTML = '';
+
+            let doneCount = 0;
+            for (let i = 0; i < n; i++) {
+                if (state.playerStatus[i] === 'done') doneCount++;
+            }
+
+            progressText.textContent = doneCount === 0
+                ? '아직 공개된 결과가 없습니다. 상단 캐릭터를 클릭하거나 [전체 출발]을 눌러보세요!'
+                : `총 ${n}명 중 ${doneCount}명의 사다리 결과가 공개되었습니다.`;
+
+            for (let i = 0; i < n; i++) {
+                const pInfo = PLAYER_PALETTE[i];
+                const isDone = state.playerStatus[i] === 'done';
+                const targetCol = state.finalMapping[i];
+                const resultStr = state.results[targetCol];
+                const isPenaltyOrWin = isDone && !resultStr.includes('꽝');
+
+                const card = document.createElement('div');
+                card.onclick = () => {
+                    if (isDone) {
+                        state.selectedPlayer = (state.selectedPlayer === i) ? null : i;
+                        renderDOMInputs();
+                        drawLadderCanvas();
+                    } else {
+                        startSinglePlayer(i);
+                    }
+                };
+                card.className = `cursor-pointer rounded-2xl p-3.5 border transition-all flex items-center justify-between gap-2 ${
+                    isDone
+                        ? (isPenaltyOrWin ? 'bg-indigo-950/60 border-indigo-500/60 shadow-lg shadow-indigo-500/10' : 'bg-slate-950/80 border-slate-800')
+                        : 'bg-slate-950/40 border-slate-800/60 opacity-75 hover:opacity-100'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0"
+                              style="background-color: ${pInfo.color}25; border: 1.5px solid ${pInfo.color}">
+                            ${pInfo.emoji}
+                        </span>
+                        <div class="truncate">
+                            <div class="font-bold text-sm text-white truncate">${state.players[i]}</div>
+                            <div class="text-[11px] text-slate-400">${isDone ? '도착 완료 (클릭해 경로 강조)' : '클릭하여 출발'}</div>
+                        </div>
+                    </div>
+                    <div class="shrink-0 text-right">
+                        ${
+                            isDone
+                                ? `<span class="px-2.5 py-1 rounded-xl font-extrabold text-xs sm:text-sm inline-block ${
+                                    isPenaltyOrWin ? 'bg-gradient-to-r from-amber-400 to-pink-500 text-slate-950 shadow' : 'bg-slate-800 text-slate-300'
+                                  }">${resultStr}</span>`
+                                : `<span class="px-2.5 py-1 rounded-xl bg-slate-800/80 text-slate-500 font-bold text-xs">? 미공개</span>`
+                        }
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function getCanvasCoord(col, yNorm, width, height) {
+            const n = state.numPlayers;
+            const colWidth = width / n;
+            const x = colWidth * (col + 0.5);
+            const padY = 22;
+            const usableH = height - padY * 2;
+            const y = padY + yNorm * usableH;
+            return { x, y };
+        }
+
+        function drawLadderCanvas() {
+            const canvas = document.getElementById('ladder-canvas');
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
+                canvas.width = Math.floor(rect.width * dpr);
+                canvas.height = Math.floor(rect.height * dpr);
+            }
+
+            const ctx = canvas.getContext('2d');
+            ctx.save();
+            ctx.scale(dpr, dpr);
+
+            const w = rect.width;
+            const h = rect.height;
+            const n = state.numPlayers;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Check if any player has started or finished
+            const anyActiveOrDone = state.playerStatus.some(st => st !== 'idle');
+            const blindOverlay = document.getElementById('blind-overlay-badge');
+            if (state.blindMode && !anyActiveOrDone) {
+                blindOverlay.classList.remove('hidden');
+            } else {
+                blindOverlay.classList.add('hidden');
+            }
+
+            // 1. Draw Vertical Rails
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            for (let c = 0; c < n; c++) {
+                const topPt = getCanvasCoord(c, 0, w, h);
+                const botPt = getCanvasCoord(c, 1, w, h);
+
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(topPt.x, topPt.y);
+                ctx.lineTo(botPt.x, botPt.y);
+                ctx.stroke();
+
+                // Top & bottom rail node dots
+                ctx.fillStyle = PLAYER_PALETTE[c].color;
+                ctx.beginPath();
+                ctx.arc(topPt.x, topPt.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#64748b';
+                ctx.beginPath();
+                ctx.arc(botPt.x, botPt.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 2. Draw Horizontal Rungs (Hidden if Blind Mode is active & no player started)
+            if (!state.blindMode) {
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 3.5;
+                state.rungs.forEach(r => {
+                    const p1 = getCanvasCoord(r.col, r.yNorm, w, h);
+                    const p2 = getCanvasCoord(r.col + 1, r.yNorm, w, h);
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                });
+            } else {
+                // In blind mode, draw subtle dashed mystery zone lines
+                ctx.save();
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.14)';
+                ctx.setLineDash([6, 6]);
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(16, 36, w - 32, h - 72);
+                ctx.restore();
+            }
+
+            // 3. Draw Active & Completed Player Trails
+            for (let i = 0; i < n; i++) {
+                if (state.playerStatus[i] === 'idle') continue;
+                const isSelected = state.selectedPlayer === i;
+                const hasSelection = state.selectedPlayer !== null;
+                const alpha = hasSelection ? (isSelected ? 1.0 : 0.22) : 0.92;
+
+                drawPlayerTrail(ctx, i, state.progress[i], w, h, alpha, isSelected);
+            }
+
+            // Re-draw selected player on very top so it stands out cleanly
+            if (state.selectedPlayer !== null && state.playerStatus[state.selectedPlayer] !== 'idle') {
+                drawPlayerTrail(ctx, state.selectedPlayer, state.progress[state.selectedPlayer], w, h, 1.0, true);
+            }
+
+            ctx.restore();
+        }
+
+        function drawPlayerTrail(ctx, playerIdx, prog, w, h, alpha, isHighlighted) {
+            const pInfo = PLAYER_PALETTE[playerIdx];
+            const waypoints = state.paths[playerIdx];
+            if (!waypoints || waypoints.length < 2) return;
+
+            // Convert normalized waypoints to pixel coordinates and measure total length
+            const pxPts = waypoints.map(wp => getCanvasCoord(wp.col, wp.yNorm, w, h));
+            const segLengths = [];
+            let totalLen = 0;
+            for (let i = 0; i < pxPts.length - 1; i++) {
+                const d = Math.hypot(pxPts[i + 1].x - pxPts[i].x, pxPts[i + 1].y - pxPts[i].y);
+                segLengths.push(d);
+                totalLen += d;
+            }
+
+            const targetDist = prog * totalLen;
+            let walked = 0;
+            let headX = pxPts[0].x;
+            let headY = pxPts[0].y;
+            let currentSegIndex = 0;
+
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = pInfo.color;
+            ctx.lineWidth = isHighlighted ? 6.5 : 4.5;
+            ctx.shadowColor = pInfo.color;
+            ctx.shadowBlur = isHighlighted ? 14 : 6;
+
+            ctx.beginPath();
+            ctx.moveTo(pxPts[0].x, pxPts[0].y);
+
+            for (let i = 0; i < segLengths.length; i++) {
+                const segLen = segLengths[i];
+                if (walked + segLen <= targetDist) {
+                    ctx.lineTo(pxPts[i + 1].x, pxPts[i + 1].y);
+                    headX = pxPts[i + 1].x;
+                    headY = pxPts[i + 1].y;
+                    walked += segLen;
+                    currentSegIndex = i + 1;
+                } else {
+                    const remain = targetDist - walked;
+                    const frac = segLen > 0 ? remain / segLen : 0;
+                    headX = pxPts[i].x + (pxPts[i + 1].x - pxPts[i].x) * frac;
+                    headY = pxPts[i].y + (pxPts[i + 1].y - pxPts[i].y) * frac;
+                    ctx.lineTo(headX, headY);
+                    currentSegIndex = i;
+                    break;
+                }
+            }
+            ctx.stroke();
+
+            // Trigger sound effect when hitting a new corner during animation
+            if (state.playerStatus[playerIdx] === 'running' && currentSegIndex > state.lastSoundStep[playerIdx]) {
+                state.lastSoundStep[playerIdx] = currentSegIndex;
+                playTurnSound(playerIdx);
+            }
+
+            // Draw Moving Avatar Marker at (headX, headY)
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#0f172a';
+            ctx.strokeStyle = pInfo.color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(headX, headY, isHighlighted ? 16 : 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+            ctx.font = `${isHighlighted ? '16px' : '14px'} sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pInfo.emoji, headX, headY + 1);
+
+            ctx.restore();
+        }
+
+        function startAnimationLoop() {
+            if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
+
+            function step() {
+                let stillRunning = false;
+                let anyJustFinished = false;
+
+                // Speed delta per frame
+                const speedDelta = state.speedMode === 'fast' ? 0.022 : 0.0095;
+
+                for (let i = 0; i < state.numPlayers; i++) {
+                    if (state.playerStatus[i] === 'running') {
+                        if (state.speedMode === 'instant') {
+                            state.progress[i] = 1.0;
+                        } else {
+                            state.progress[i] += speedDelta;
+                        }
+
+                        if (state.progress[i] >= 1.0) {
+                            state.progress[i] = 1.0;
+                            state.playerStatus[i] = 'done';
+                            anyJustFinished = true;
+                            const resText = state.results[state.finalMapping[i]];
+                            playFinishSound(!resText.includes('꽝'));
+                        } else {
+                            stillRunning = true;
+                        }
+                    }
+                }
+
+                drawLadderCanvas();
+
+                if (anyJustFinished) {
+                    renderDOMInputs();
+                }
+
+                if (stillRunning) {
+                    state.animFrameId = requestAnimationFrame(step);
+                } else {
+                    state.animFrameId = null;
+                }
+            }
+
+            state.animFrameId = requestAnimationFrame(step);
+        }
+
+        function startSinglePlayer(idx) {
+            state.selectedPlayer = idx;
+            state.playerStatus[idx] = 'running';
+            state.progress[idx] = 0;
+            state.lastSoundStep[idx] = 0;
+            playTone(440, 'sine', 0.08, 0.08);
+            renderDOMInputs();
+            startAnimationLoop();
+        }
+
+        function startAllPlayers() {
+            state.selectedPlayer = null;
+            for (let i = 0; i < state.numPlayers; i++) {
+                state.playerStatus[i] = 'running';
+                state.progress[i] = 0;
+                state.lastSoundStep[i] = 0;
+            }
+            playTone(523.25, 'triangle', 0.1, 0.09);
+            renderDOMInputs();
+            startAnimationLoop();
+        }
+
+        function revealAllInstant() {
+            if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
+            state.selectedPlayer = null;
+            for (let i = 0; i < state.numPlayers; i++) {
+                state.playerStatus[i] = 'done';
+                state.progress[i] = 1.0;
+            }
+            playFinishSound(true);
+            renderDOMInputs();
+            drawLadderCanvas();
+            showToast('전체 사다리 결과가 즉시 공개되었습니다!');
+        }
+
+        function resetTraces() {
+            if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
+            state.selectedPlayer = null;
+            for (let i = 0; i < state.numPlayers; i++) {
+                state.playerStatus[i] = 'idle';
+                state.progress[i] = 0;
+                state.lastSoundStep[i] = 0;
+            }
+            renderDOMInputs();
+            drawLadderCanvas();
+            showToast('진행 경로가 초기화되었습니다.');
+        }
+
+        function hoverPlayer(idx) {
+            if (state.playerStatus[idx] === 'done') {
+                state.selectedPlayer = idx;
+                drawLadderCanvas();
+            }
+        }
+
+        function setPlayerCount(val) {
+            const count = Math.max(2, Math.min(12, parseInt(val, 10) || 5));
+            state.numPlayers = count;
+            document.getElementById('player-count-label').textContent = count;
+            document.getElementById('player-slider').value = count;
+            resetStateArrays();
+            generateRungs();
+            renderDOMInputs();
+            drawLadderCanvas();
+        }
+
+        function changePlayerCount(delta) {
+            setPlayerCount(state.numPlayers + delta);
+        }
+
+        function resetStateArrays() {
+            state.playerStatus = new Array(state.numPlayers).fill('idle');
+            state.progress = new Array(state.numPlayers).fill(0);
+            state.lastSoundStep = new Array(state.numPlayers).fill(0);
+            state.selectedPlayer = null;
+        }
+
+        function updatePlayerName(idx, val) {
+            state.players[idx] = val || `참가자 ${idx + 1}`;
+            renderSummaryCards();
+        }
+
+        function updateResultItem(idx, val) {
+            state.results[idx] = val || `결과 ${idx + 1}`;
+            renderSummaryCards();
+        }
+
+        function regenerateLadder() {
+            resetStateArrays();
+            generateRungs();
+            renderDOMInputs();
+            drawLadderCanvas();
+            playTone(392, 'sine', 0.08, 0.07);
+            showToast('새로운 사다리 가로줄이 생성되었습니다!');
+        }
+
+        function shuffleInputs() {
+            const n = state.numPlayers;
+            // Fisher-Yates shuffle on active results
+            const activeResults = state.results.slice(0, n);
+            for (let i = n - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeResults[i], activeResults[j]] = [activeResults[j], activeResults[i]];
+            }
+            for (let i = 0; i < n; i++) {
+                state.results[i] = activeResults[i];
+            }
+            resetTraces();
+            playTone(659.25, 'sine', 0.09, 0.07);
+            showToast('당첨/벌칙 항목 위치가 무작위로 섞였습니다!');
+        }
+
+        function applyPreset(type) {
+            const n = state.numPlayers;
+            if (type === 'coffee') {
+                for (let i = 0; i < n; i++) state.results[i] = '통과 (무사)';
+                const winIdx = Math.floor(Math.random() * n);
+                state.results[winIdx] = '☕ 커피 쏘기!';
+                showToast('☕ 커피 내기 (1명 당첨) 프리셋이 적용되었습니다.');
+            } else if (type === 'lunch') {
+                const menus = ['🍔 수제버거', '🍜 마라탕/쌀국수', '🍣 초밥/일식', '🍕 피자/파스타', '🥘 김치찌개/한식', '🍗 치킨/찜닭', '🌮 타코/멕시칸', '🥟 중식/짜장면', '🥗 포케/샐러드', '🍖 삼겹살/고깃집', '🍛 카레/돈까스', '🥪 샌드위치'];
+                for (let i = 0; i < n; i++) state.results[i] = menus[i % menus.length];
+                showToast('🍔 점심 메뉴 추천 프리셋이 적용되었습니다.');
+            } else if (type === 'cleaning') {
+                const tasks = ['🧹 바닥 쓸기', '🧽 분리수거', '🫧 설거지/탕비실', '🗑️ 쓰레기통 비우기', '✨ 면제 (휴식!)', '🪴 환기/정리정돈'];
+                for (let i = 0; i < n; i++) state.results[i] = tasks[i % tasks.length];
+                showToast('🧹 청소 및 역할 분담 프리셋이 적용되었습니다.');
+            } else if (type === 'order') {
+                for (let i = 0; i < n; i++) state.results[i] = `${i + 1}번째 발표`;
+                shuffleInputs();
+                showToast('🔢 발표 순서 (1~N번째) 프리셋이 적용되었습니다.');
+                return;
+            }
+            resetTraces();
+        }
+
+        function toggleBlindMode() {
+            state.blindMode = !state.blindMode;
+            const btn = document.getElementById('blind-toggle-btn');
+            const icon = document.getElementById('blind-icon');
+            const text = document.getElementById('blind-text');
+
+            if (state.blindMode) {
+                btn.className = 'game-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border flex items-center gap-2 bg-indigo-600/30 text-indigo-200 border-indigo-500/60';
+                icon.className = 'fa-solid fa-eye-slash text-pink-400';
+                text.textContent = '블라인드 ON';
+                showToast('🙈 블라인드 모드: 가로줄이 숨겨졌습니다!');
+            } else {
+                btn.className = 'game-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border flex items-center gap-2 bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-700';
+                icon.className = 'fa-solid fa-eye text-indigo-400';
+                text.textContent = '블라인드 OFF';
+                showToast('👀 블라인드 모드가 해제되었습니다.');
+            }
+            drawLadderCanvas();
+        }
+
+        function setSpeed(mode) {
+            state.speedMode = mode;
+            ['normal', 'fast', 'instant'].forEach(m => {
+                const btn = document.getElementById('speed-' + m);
+                if (m === mode) {
+                    btn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white shadow';
+                } else {
+                    btn.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white';
+                }
+            });
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            icon.className = state.soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-500';
+            showToast(state.soundEnabled ? '🔊 효과음이 켜졌습니다.' : '🔇 효과음이 꺼졌습니다.');
+        }
+
+        function copyResultsToClipboard() {
+            const n = state.numPlayers;
+            const anyDone = state.playerStatus.some(st => st === 'done');
+            if (!anyDone) {
+                revealAllInstant();
+            }
+
+            const lines = ['🪜 [두근두근 사다리타기 결과]'];
+            for (let i = 0; i < n; i++) {
+                const emoji = PLAYER_PALETTE[i].emoji;
+                const pName = state.players[i];
+                const targetCol = state.finalMapping[i];
+                const res = state.results[targetCol];
+                lines.push(`${emoji} ${pName} ➔ ${res}`);
+            }
+
+            const textToCopy = lines.join('\n');
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showToast('📋 사다리 결과 텍스트가 복사되었습니다! 메신저에 붙여넣어 보세요.');
+        }
+
+        // Canvas click handler to select/highlight a column path
+        document.getElementById('ladder-canvas').addEventListener('click', (e) => {
+            const canvas = e.currentTarget;
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const col = Math.floor((clickX / rect.width) * state.numPlayers);
+            if (col >= 0 && col < state.numPlayers) {
+                startSinglePlayer(col);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            drawLadderCanvas();
+        });
+
+        window.onload = function () {
+            resetStateArrays();
+            generateRungs();
+            renderDOMInputs();
+            drawLadderCanvas();
+        };
+    </script>
+</body>
+</html>
